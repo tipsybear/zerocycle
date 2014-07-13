@@ -1,0 +1,10 @@
+## Zerocycle Configuration File
+## This is an example configuration file for use with the zerocycle project
+
+debug:   false
+testing: false
+database:
+    user: postgres
+    password: ""
+    host: "localhost"
+    port: 5432
