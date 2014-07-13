@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# zerocycle
+# Admin script for running zerocyle commands
+#
+# Author:   Benjamin Bengfort <benjamin@bengfort.com>
+# Created:  Sun Jul 13 08:51:00 2014 -0400
+#
+# Copyright (C) 2014 Bengfort.com
+# For license information, see LICENSE.txt
+#
+# ID: zerocycle [] benjamin@bengfort.com $
+
+"""
+Admin script for running zerocyle commands
+"""
+
+##########################################################################
+## Imports
+##########################################################################
+
+import os
+import sys
+import argparse
+
+##########################################################################
+## Constants
+##########################################################################
+
+DESCRIPTION = "An administrative utility for the Zerocycle project"
+EPILOG      = "For bugs or concerns, please leave an issue on Github"
+VERSION     = "0.1"
+
+##########################################################################
+## Main Method
+##########################################################################
+
+def main(*arv):
+
+    ## Construct the argument parser
+    parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG, version=VERSION)
+
+    ## Add command line arguments
+
+    ## Parse the arguments from the command line
+    options = parser.parse_args()
+
+if __name__ == '__main__':
+    main(*sys.argv[1:])
