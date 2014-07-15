@@ -13,6 +13,8 @@
 Zerocycle Models for interacting with the database. These models use the
 SQLAlchemy delcarative base extension to define them in a "Django-like"
 way.
+
+@todo: Should we have a Report model to track reports?
 """
 
 ##########################################################################
@@ -41,7 +43,7 @@ Base = declarative_base() # SQLAlchemy declarative extension
 ## Models
 ##########################################################################
 
-class Routes(Base):
+class Route(Base):
     """
     Stores information about Austin city garbage truck routes.
     """
@@ -51,6 +53,7 @@ class Routes(Base):
     id            = Column(Integer, primary_key=True, nullable=False)
     name          = Column(Unicode(50), unique=True, nullable=False)
     supervisor    = Column(Unicode(50), nullable=True)
+    locations     = Column(Integer, nullable=True)
     created       = Column(DateTime(timezone=True), default=Clock.localnow)
     updated       = Column(DateTime(timezone=True), onupdate=Clock.localnow)
 
@@ -63,7 +66,7 @@ class Pickup(Base):
 
     id            = Column(Integer, primary_key=True, nullable=False)
     date          = Column(Date, nullable=False)
-    route_id      = Column(Integer, ForeignKey('routes.id'))
+    route_id      = Column(Integer, ForeignKey('routes.id'), nullable=False)
     route         = relationship('Route', backref='pickups')
     vehicle       = Column(Unicode(20))
     miles         = Column(Integer)
