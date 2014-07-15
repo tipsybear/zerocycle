@@ -197,6 +197,23 @@ class DatabaseConfiguration(Configuration):
     host            = "127.0.0.1"
     port            = 5432
 
+    @property
+    def uri(self):
+        if self.scheme == 'sqlite':
+            if self.name:
+                return "{scheme}:///{db}".format(scheme=self.scheme, db=self.name)
+            return "{scheme}://"
+
+        urifmt = "{scheme}://{user}:{passwd}@{host}:{port}/{db}"
+        return urifmt.format(
+            scheme = self.scheme,
+            user   = self.user,
+            passwd = self.password,
+            host   = self.host,
+            port   = self.port,
+            db     = self.name
+        )
+
 ##########################################################################
 ## Zerocycle Configuration Defaults
 ##########################################################################

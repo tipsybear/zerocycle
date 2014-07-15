@@ -22,6 +22,8 @@ import os
 import sys
 import argparse
 
+from zerocycle.db import syncdb as createdb
+
 ##########################################################################
 ## Constants
 ##########################################################################
@@ -31,6 +33,17 @@ EPILOG      = "For bugs or concerns, please leave an issue on Github"
 VERSION     = "0.1"
 
 ##########################################################################
+## Administrative Commands
+##########################################################################
+
+def syncdb(args):
+    """
+    Creates the database at the config location or the specified one.
+    """
+    url = createdb(args.database)
+    return "Database created at %s" % url
+
+##########################################################################
 ## Main Method
 ##########################################################################
 
@@ -38,11 +51,22 @@ def main(*arv):
 
     ## Construct the argument parser
     parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG, version=VERSION)
+    subparsers = parser.add_subparsers(title='commands', description='Zerocycle Admin tools')
 
-    ## Add command line arguments
+    ## SyncDB command
+    syncdb_parser = subparsers.add_parser('syncdb', help='Create database and associated tables.')
+    syncdb_parser.add_argument('database', type=str, nargs='?', default=None, help='Path to create a sqlite3 database')
+    syncdb_parser.set_defaults(func=syncdb)
 
-    ## Parse the arguments from the command line
-    options = parser.parse_args()
+    ## Handle input from the command line
+    args = parser.parse_args()              # Parse the arguments from the command line
+    try:
+        msg = args.func(args)               # Call the default function
+        msg = msg + "\n" if msg else ''     # Add newline from return
+        parser.exit(0, msg)                 # Exit cleanly with message
+    except Exception as e:
+        parser.error(str(e))                # Exit with an error.
+
 
 if __name__ == '__main__':
     main(*sys.argv[1:])
