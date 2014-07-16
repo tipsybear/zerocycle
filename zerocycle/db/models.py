@@ -55,7 +55,10 @@ class Route(Base):
     supervisor    = Column(Unicode(50), nullable=True)
     locations     = Column(Integer, nullable=True)
     created       = Column(DateTime(timezone=True), default=Clock.localnow)
-    updated       = Column(DateTime(timezone=True), onupdate=Clock.localnow)
+    updated       = Column(DateTime(timezone=True), default=Clock.localnow, onupdate=Clock.localnow)
+
+    def __str__(self):
+        return "Route %s" % self.name
 
 class Pickup(Base):
     """
@@ -72,7 +75,10 @@ class Pickup(Base):
     miles         = Column(Integer)
     garbage       = Column(Integer)
     created       = Column(DateTime(timezone=True), default=Clock.localnow)
-    updated       = Column(DateTime(timezone=True), onupdate=Clock.localnow)
+    updated       = Column(DateTime(timezone=True), default=Clock.localnow, onupdate=Clock.localnow)
+
+    def __str__(self):
+        return "Pickup on %s for route %s" % (Clock().format(self.date, "isodate"), self.route)
 
 ##########################################################################
 ## Database helper methods
