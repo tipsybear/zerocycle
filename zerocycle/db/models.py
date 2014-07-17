@@ -21,6 +21,7 @@ way.
 ## Imports
 ##########################################################################
 
+from sqlalchemy import UniqueConstraint
 from sqlalchemy import Column, Integer, Unicode, UnicodeText
 from sqlalchemy import DateTime, Date
 from sqlalchemy.orm import relationship
@@ -65,7 +66,10 @@ class Pickup(Base):
     Stores information about daily trash pickups in Austin.
     """
 
-    __tablename__ = 'pickups'
+    __tablename__  = 'pickups'
+    __table_args__ = (
+        UniqueConstraint('route_id', 'date', 'vehicle'),
+    )
 
     id            = Column(Integer, primary_key=True, nullable=False)
     date          = Column(Date, nullable=False)
@@ -88,11 +92,24 @@ def get_engine(uri=None):
     uri = uri or settings.get('database').uri
     return create_engine(uri)
 
-def create_session(eng=None):
-    eng = eng or get_engine()
-    return sessionmaker(bind=eng)()
-
 def syncdb(uri=None):
     engine = get_engine(uri)
     Base.metadata.create_all(engine)
     return engine.url
+
+## Descriptor for creating and maintaining sessions
+class SessionFactory(object):
+
+    def __init__(self):
+        self.engine  = None
+        self.factory = None
+
+    def __call__(self):
+        if self.engine is None:
+            self.engine  = get_engine()
+        if self.factory is None:
+            self.factory = sessionmaker(bind=self.engine)
+        return self.factory()
+
+## Create session "method"
+create_session = SessionFactory()

@@ -23,6 +23,7 @@ import sys
 import argparse
 
 from zerocycle.db import syncdb as createdb
+from zerocycle.ingest import ingest_report
 
 ##########################################################################
 ## Constants
@@ -43,6 +44,25 @@ def syncdb(args):
     url = createdb(args.database)
     return "Database created at %s" % url
 
+def ingest(args):
+    """
+    Ingests a report or reports and saves them to the database.
+    """
+    options = dict(vars(args))
+    rtype   = options.pop('type')
+    verbose = options.pop('verbosity')
+    reports = 0
+    objects = 0
+
+    for report in options.pop('reports'):
+        reports += 1
+        for obj, created in ingest_report(rtype, report, **options):
+            if verbose > 0:
+                print obj
+            if created: objects += 1
+
+    return "%i reports ingested with %i objects" % (reports, objects)
+
 ##########################################################################
 ## Main Method
 ##########################################################################
@@ -58,14 +78,22 @@ def main(*arv):
     syncdb_parser.add_argument('database', type=str, nargs='?', default=None, help='Path to create a sqlite3 database')
     syncdb_parser.set_defaults(func=syncdb)
 
+    ## Ingest command
+    ingest_parser = subparsers.add_parser('ingest', help='Ingest a report into the database.')
+    ingest_parser.add_argument('reports', type=str, nargs='+', help='Reports to ingest to database.')
+    ingest_parser.add_argument('--verbosity', type=int, choices=(0,1,2,3), help='Specify verboseness of output.')
+    ingest_parser.add_argument('-t', '--type', type=str, choices=('monthly', 'accounts'), help='Specify the type of report to ingest.')
+    ingest_parser.add_argument('--no-commit', dest='commit', action='store_false', help='Do not commit to the database')
+    ingest_parser.set_defaults(func=ingest)
+
     ## Handle input from the command line
     args = parser.parse_args()              # Parse the arguments from the command line
-    try:
-        msg = args.func(args)               # Call the default function
-        msg = msg + "\n" if msg else ''     # Add newline from return
-        parser.exit(0, msg)                 # Exit cleanly with message
-    except Exception as e:
-        parser.error(str(e))                # Exit with an error.
+    # try:
+    msg = args.func(args)               # Call the default function
+    msg = msg + "\n" if msg else ''     # Add newline from return
+    parser.exit(0, msg)                 # Exit cleanly with message
+    # except Exception as e:
+    #     parser.error(str(e))                # Exit with an error.
 
 
 if __name__ == '__main__':
